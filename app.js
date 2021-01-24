@@ -8,6 +8,7 @@ const bodyParser = require("body-parser");
 const compression = require("compression");
 const { whitelist } = require("./constants/whitelist");
 const { sanitiseInput } = require("./utils/sanitise");
+const { logger } = require("./logger");
 const app = express();
 
 const corsOptions = {
@@ -37,6 +38,7 @@ app.use("*", (req, _res, next) => {
 });
 
 app.use(function (err, _req, res, _next) {
+  logger.error(err);
   res.status(500).send({ error: "Oops: Something broke!" });
 });
 

@@ -1,3 +1,5 @@
+"use strict";
+
 const validator = require("validator").default;
 
 const sanitiseInput = (data) => {
