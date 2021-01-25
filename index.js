@@ -60,7 +60,6 @@ io.on("connection", (socket) => {
   socket.on("login verification", async (email, imageSrc) => {
     const user = await userFetch(email);
     if (!user) return;
-    console.log(user.url);
     const image = await axios.get(user.url, {
       responseType: "arraybuffer",
     });
