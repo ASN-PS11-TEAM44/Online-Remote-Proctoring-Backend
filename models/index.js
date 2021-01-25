@@ -13,6 +13,4 @@ for (const modelDefiner of modelDefiners) {
 }
 applyExtraSetup(sequelize);
 
-console.log(sequelize)
-
 module.exports = sequelize;

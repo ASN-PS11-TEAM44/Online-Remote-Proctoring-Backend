@@ -9,6 +9,7 @@ const compression = require("compression");
 const { whitelist } = require("./constants/whitelist");
 const { sanitiseInput } = require("./utils/sanitise");
 const { logger } = require("./logger");
+const { router: authRouter } = require("./routes/authentication/route");
 const app = express();
 
 const corsOptions = {
@@ -37,9 +38,11 @@ app.use("*", (req, _res, next) => {
   next();
 });
 
+app.use("/auth", authRouter);
+
 app.use(function (err, _req, res, _next) {
   logger.error(err);
-  res.status(500).send({ error: "Oops: Something broke!" });
+  res.status(500).send({ success: false, error: "Oops: Something broke!" });
 });
 
 module.exports = {
