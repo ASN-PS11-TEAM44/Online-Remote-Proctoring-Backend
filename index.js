@@ -5,6 +5,26 @@ const { app } = require("./app");
 const server = require("http").createServer(app);
 const { logger } = require("./logger");
 const sequelize = require("./models/index");
+const { whitelist } = require("./constants/whitelist");
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow Rest API Clients to be used for testing
+    if (
+      whitelist.indexOf(origin) !== -1 ||
+      process.env.NODE_ENV !== "production"
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+};
+
+const io = require("socket.io")(server, {
+  cors: corsOptions,
+});
 
 // Use .env in development mode, .env.production in production mode
 const dotenvfile =
@@ -25,17 +45,13 @@ const assertDatabaseConnectionOk = async () => {
 
 assertDatabaseConnectionOk();
 
-const io = require("socket.io")(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL,
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
-
 // Read the port from the environment file
 const PORT = process.env.PORT || 8000;
 
 server.listen(PORT, () => logger.info(`Server listening on Port ${PORT}`));
 
-io.on("connection", (socket) => {});
+io.on("connection", (socket) => {
+  socket.on("login verification", (email, imageSrc) => {
+    console.log(email);
+  });
+});
