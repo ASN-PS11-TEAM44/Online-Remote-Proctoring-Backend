@@ -26,7 +26,7 @@ const corsOptions = {
   },
 };
 
-app.use(express.static(path.join(__dirname, "public")));
+app.use("/upload", express.static(path.join(__dirname, "upload")));
 app.use(cors(corsOptions));
 app.use(helmet());
 app.use(compression());

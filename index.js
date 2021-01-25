@@ -1,11 +1,12 @@
 "use strict";
 
-const { Socket } = require("dgram");
 const { app } = require("./app");
 const server = require("http").createServer(app);
 const { logger } = require("./logger");
 const sequelize = require("./models/index");
 const { whitelist } = require("./constants/whitelist");
+const { userFetch } = require("./helper/userFetch");
+const axios = require("axios");
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -25,6 +26,7 @@ const corsOptions = {
 const io = require("socket.io")(server, {
   cors: corsOptions,
 });
+const clientIO = require("socket.io-client");
 
 // Use .env in development mode, .env.production in production mode
 const dotenvfile =
@@ -50,8 +52,19 @@ const PORT = process.env.PORT || 8000;
 
 server.listen(PORT, () => logger.info(`Server listening on Port ${PORT}`));
 
+// Backend and AI-Server Sockets
+const client = clientIO.connect(process.env.AI_URL);
+
+// Frontend and Backend Sockets
 io.on("connection", (socket) => {
-  socket.on("login verification", (email, imageSrc) => {
-    console.log(email);
+  socket.on("login verification", async (email, imageSrc) => {
+    const user = await userFetch(email);
+    if (!user) return;
+    console.log(user.url);
+    const image = await axios.get(user.url, {
+      responseType: "arraybuffer",
+    });
+    const dbImage = Buffer.from(image.data).toString("base64");
+    client.emit("face verification", imageSrc, dbImage, (response) => {});
   });
 });

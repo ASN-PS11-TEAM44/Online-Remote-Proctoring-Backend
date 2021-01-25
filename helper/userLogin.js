@@ -2,11 +2,12 @@
 
 const sequelize = require("../models/index");
 const { hash } = require("../utils/encryptDecrypt");
+const { userFetch } = require("./userFetch");
 
 const { user } = sequelize.models;
 
 const userLogin = async (email, password) => {
-  const User = await user.findByPk(email, { raw: true });
+  const User = await userFetch(email);
   if (!User) return false;
   const hashedPassword = hash(password);
   return User.password === hashedPassword;

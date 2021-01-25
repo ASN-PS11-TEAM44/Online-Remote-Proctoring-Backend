@@ -31,7 +31,7 @@ module.exports = (sequelize) => {
       allowNull: false,
       set(value) {
         if (process.env.NODE_ENV !== "production") {
-          const url = `http://localhost:${process.env.PORT}/public/${value}`;
+          const url = `http://localhost:${process.env.PORT}${value}`;
           this.setDataValue("url", url);
         } else {
           this.setDataValue("url", value);
