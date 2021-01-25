@@ -52,3 +52,4 @@ Thumbs.db
 .com.apple.timemachine.donotpresent
 package-lock.json
 .env
+upload/

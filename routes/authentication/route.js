@@ -1,3 +1,5 @@
+"use strict";
+
 const path = require("path");
 const express = require("express");
 const multer = require("multer");
@@ -6,12 +8,13 @@ const { v4: uuidv4 } = require("uuid");
 const { userRegister } = require("../../helper/userRegister");
 const { ImageMimeTypes } = require("../../constants/ImageMimeTypes");
 const { registerController } = require("../../controllers/registerUser");
+const { loginController } = require("../../controllers/loginUser");
 
 const router = express.Router();
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, path.resolve(__dirname, "../", '../', "upload"));
+    cb(null, path.resolve(__dirname, "../", "../", "upload"));
   },
   filename: (_req, file, cb) => {
     const fileName = "".concat(uuidv4(), file.originalname);
@@ -31,5 +34,6 @@ const upload = multer({
 });
 
 router.route("/register").post(upload.single("image"), registerController);
+router.route("/login").post(loginController);
 
 module.exports = { router };

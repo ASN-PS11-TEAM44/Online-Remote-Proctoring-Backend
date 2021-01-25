@@ -1,3 +1,5 @@
+"use strict";
+
 const ImageMimeTypes = [
   "image/x-icon",
   "image/jpg",

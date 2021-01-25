@@ -1,3 +1,5 @@
+"use strict";
+
 const sequelize = require("../models/index");
 
 const { user } = sequelize.models;
