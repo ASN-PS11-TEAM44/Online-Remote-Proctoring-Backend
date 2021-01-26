@@ -1,16 +1,13 @@
 "use strict";
 
-const sequelize = require("../models/index");
 const { hash } = require("../utils/encryptDecrypt");
 const { userFetch } = require("./userFetch");
 
-const { user } = sequelize.models;
-
 const userLogin = async (email, password) => {
   const User = await userFetch(email);
-  if (!User) return false;
+  if (!User) return [false, null];
   const hashedPassword = hash(password);
-  return User.password === hashedPassword;
+  return [User.password === hashedPassword, User];
 };
 
 module.exports = { userLogin };

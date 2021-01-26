@@ -10,6 +10,8 @@ const { whitelist } = require("./constants/whitelist");
 const { sanitiseInput } = require("./utils/sanitise");
 const { logger } = require("./logger");
 const { router: authRouter } = require("./routes/authentication/route");
+const { router: sampleRouter } = require("./routes/sample/route");
+const passport = require("./config/passportConfig");
 const app = express();
 
 const corsOptions = {
@@ -28,6 +30,7 @@ const corsOptions = {
 
 app.use("/upload", express.static(path.join(__dirname, "upload")));
 app.use(cors(corsOptions));
+app.use(passport.initialize());
 app.use(helmet());
 app.use(compression());
 app.use(bodyParser.json());
@@ -39,6 +42,8 @@ app.use("*", (req, _res, next) => {
 });
 
 app.use("/auth", authRouter);
+app.use("/api", passport.authenticate("jwt", { session: false }));
+app.use("/api/jwt", sampleRouter);
 
 app.use(function (err, _req, res, _next) {
   logger.error(err);

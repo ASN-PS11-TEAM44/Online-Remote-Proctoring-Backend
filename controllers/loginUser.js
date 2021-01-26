@@ -22,10 +22,12 @@ const loginController = async (req, res) => {
     });
     return;
   }
-  const response = await userLogin(email, password);
-  if (response) {
+  const [validateStatus, user] = await userLogin(email, password);
+  if (validateStatus) {
+    user["password"] = "";
     res.status(200).send({
-      error: "Email and Password valid",
+      message: "Email and Password valid",
+      user: user,
     });
   } else {
     res.status(400).send({
