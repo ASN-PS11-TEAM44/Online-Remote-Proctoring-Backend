@@ -8,5 +8,9 @@ module.exports = (sequelize) => {
       type: DataTypes.BIGINT,
       default: 0,
     },
+    complete: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   });
 };
