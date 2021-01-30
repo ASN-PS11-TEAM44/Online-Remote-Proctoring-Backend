@@ -45,6 +45,11 @@ const initSocket = (socket) => {
       });
     }
   );
+  socket.on("brightness validation", async (imageSrc, callback) => {
+    client.emit("brightness detector", imageSrc, (response) => {
+      callback(response);
+    });
+  });
 };
 
 module.exports = (server) => {
