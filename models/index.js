@@ -5,7 +5,14 @@ const { applyExtraSetup } = require("./association");
 
 const sequelize = require("./database");
 
-const modelDefiners = [require("./user.model")];
+const modelDefiners = [
+  require("./user.model"),
+  require("./exam.model"),
+  require("./question.model"),
+  require("./option.model"),
+  require("./attempt.model"),
+  // require("./question_attempt.model"),
+];
 
 // We define all models according to their files.
 for (const modelDefiner of modelDefiners) {

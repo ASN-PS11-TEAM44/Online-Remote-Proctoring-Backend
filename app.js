@@ -9,8 +9,9 @@ const compression = require("compression");
 const { whitelist } = require("./constants/whitelist");
 const { sanitiseInput } = require("./utils/sanitise");
 const { logger } = require("./logger");
-const { router: authRouter } = require("./routes/authentication/route");
-const { router: sampleRouter } = require("./routes/sample/route");
+const { router: authRouter } = require("./routes/authentication/router");
+const { router: sampleRouter } = require("./routes/sample/router");
+const { router: examRouter } = require("./routes/exam/router");
 const passport = require("./config/passportConfig");
 const app = express();
 
@@ -44,6 +45,7 @@ app.use("*", (req, _res, next) => {
 app.use("/auth", authRouter);
 app.use("/api", passport.authenticate("jwt", { session: false }));
 app.use("/api/jwt", sampleRouter);
+app.use("/api/exam", examRouter);
 
 app.use(function (err, _req, res, _next) {
   logger.error(err);

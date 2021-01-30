@@ -38,5 +38,10 @@ module.exports = (sequelize) => {
         }
       },
     },
+    isStudent: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: false,
+    },
   });
 };
