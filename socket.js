@@ -50,6 +50,18 @@ const initSocket = (socket) => {
       callback(response);
     });
   });
+
+  socket.on("exam validation", async (imageSrc) => {
+    client.emit("face detector", imageSrc, (response, mssg) => {
+      console.log(response, mssg);
+    });
+    client.emit("object detector", imageSrc, (response) => {
+      console.log(response);
+    });
+    client.emit("pose detector", imageSrc, (response, mssg) => {
+      console.log(response, mssg);
+    });
+  });
 };
 
 module.exports = (server) => {
