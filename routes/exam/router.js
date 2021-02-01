@@ -13,9 +13,14 @@ const {
 } = require("../../controllers/attemptQuestion");
 const { answerFetchController } = require("../../controllers/getAnswers");
 const { endExamController } = require("../../controllers/endExam");
+const {
+  userActivityFetchController,
+} = require("../../controllers/getUserActivity");
+const { userFetchController } = require("../../controllers/getUsers");
+
 const router = express.Router();
 
-router.route("/").get(examFetchController);
+router.route("/").post(examFetchController);
 router.route("/question").post(questionFetchController);
 router.route("/details").post(examDetailFetchController);
 router.route("/attempt").post(attemptExamController);
@@ -23,5 +28,7 @@ router.route("/fetch/attempt").post(getAttemptController);
 router.route("/answer").post(attemptQuestionController);
 router.route("/fetch/answer").post(answerFetchController);
 router.route("/end").post(endExamController);
+router.route("/fetch/activity").post(userActivityFetchController);
+router.route("/users").post(userFetchController);
 
 module.exports = { router };

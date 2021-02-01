@@ -4,10 +4,10 @@ const sequelize = require("../models/index");
 
 const { exam, user } = sequelize.models;
 
-const examSpecificFetch = async (emailId, email, isStudent = true) => {
+const examSpecificFetch = async (examId, email, isStudent = true) => {
   const exams = await exam.findOne({
     where: {
-      id: emailId,
+      id: examId,
     },
   });
   return exams;

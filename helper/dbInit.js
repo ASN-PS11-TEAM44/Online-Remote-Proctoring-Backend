@@ -2,6 +2,7 @@
 
 const { examCreate } = require("./createExam");
 const { associateExamStudent } = require("./associateExamStudent");
+const { associateExamInvigilator } = require("./associateExamInvigilator");
 const { questionCreate } = require("./createQuestion");
 const { optionCreate } = require("./createOption");
 
@@ -11,7 +12,8 @@ const initDb = async () => {
   nextYearDT.setUTCFullYear(2022);
 
   await examCreate("First Exam", 100, currentDT, nextYearDT);
-  await associateExamStudent(1, 'siddharthsingharoy@gmail.com')
+  await associateExamStudent(1, "siddharthsingharoy@gmail.com");
+  await associateExamInvigilator(1, "siddharthsingharoy@teacher.com");
 
   await questionCreate("What is 1 + 1 ?", 1);
   await await optionCreate("3", false, 1);

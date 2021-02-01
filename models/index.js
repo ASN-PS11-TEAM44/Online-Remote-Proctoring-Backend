@@ -12,6 +12,7 @@ const modelDefiners = [
   require("./option.model"),
   require("./attempt.model"),
   require("./question_attempt.model"),
+  require("./user_activity.model"),
 ];
 
 // We define all models according to their files.

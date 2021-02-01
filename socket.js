@@ -7,6 +7,8 @@ const axios = require("axios");
 
 const { whitelist } = require("./constants/whitelist");
 const { generateToken } = require("./config/authConfig");
+const { addUserActivity } = require("./helper/addUserActivity");
+const { examSpecificFetch } = require("./helper/examSpecificFetch");
 
 const client = clientIO.connect(process.env.AI_URL);
 const corsOptions = {
@@ -32,6 +34,7 @@ const initSocket = (socket) => {
   socket.on(
     "login verification",
     async (email, imageSrc, urlImage, callback) => {
+      socket.join(email);
       const image = await axios.get(urlImage, {
         responseType: "arraybuffer",
       });
@@ -45,6 +48,9 @@ const initSocket = (socket) => {
       });
     }
   );
+  socket.on("connect to room", (email) => {
+    socket.join(email);
+  });
   socket.on("brightness validation", async (imageSrc, callback) => {
     client.emit("brightness detector", imageSrc, (response) => {
       callback(response);
@@ -53,14 +59,21 @@ const initSocket = (socket) => {
 
   socket.on("exam validation", async (imageSrc) => {
     client.emit("face detector", imageSrc, (response, mssg) => {
-      console.log(response, mssg);
+      // console.log(response, mssg);
     });
     client.emit("object detector", imageSrc, (response) => {
-      console.log(response);
+      // console.log(response);
     });
     client.emit("pose detector", imageSrc, (response, mssg) => {
-      console.log(response, mssg);
+      // console.log(response, mssg);
     });
+  });
+  socket.on("user activity", async (examId, userEmail, message, status) => {
+    const exam = await examSpecificFetch(examId);
+    await addUserActivity(examId, userEmail, message, status);
+    console.log(socket.rooms);
+    const newMessage = `${userEmail} : ${message}`;
+    socket.in(exam.userEmail).emit("user report", { message: newMessage });
   });
 };
 

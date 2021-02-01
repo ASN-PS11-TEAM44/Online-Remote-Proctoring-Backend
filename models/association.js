@@ -8,7 +8,7 @@ const applyExtraSetup = (sequelize) => {
     option,
     testAttempt,
     questionAttempt,
-    // userActivity,
+    userActivity,
   } = sequelize.models;
   exam.belongsToMany(user, { through: "student_in_exam" });
   exam.hasOne(user, { as: "invigilatorID", constraints: false });
@@ -33,10 +33,10 @@ const applyExtraSetup = (sequelize) => {
   questionAttempt.hasOne(option, { constraints: false });
   option.hasMany(questionAttempt);
 
-  //   userActivity.hasOne(testAttempt);
-  //   testAttempt.belongsTo(userActivity);
-  //   userActivity.hasOne(user);
-  //   user.hasMany(userActivity);
+  testAttempt.hasOne(userActivity, { constraints: false });
+  userActivity.belongsTo(testAttempt);
+  userActivity.hasOne(user);
+  user.hasMany(userActivity, { constraints: false });
 };
 
 module.exports = { applyExtraSetup };

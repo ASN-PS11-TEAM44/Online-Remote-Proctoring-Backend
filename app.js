@@ -13,6 +13,7 @@ const { router: authRouter } = require("./routes/authentication/router");
 const { router: sampleRouter } = require("./routes/sample/router");
 const { router: examRouter } = require("./routes/exam/router");
 const passport = require("./config/passportConfig");
+// const { addUserActivity } = require("./helper/addUserActivity");
 const app = express();
 
 const corsOptions = {
