@@ -17,6 +17,7 @@ const {
   userActivityFetchController,
 } = require("../../controllers/getUserActivity");
 const { userFetchController } = require("../../controllers/getUsers");
+const { modifyExamController } = require("../../controllers/modifyExam");
 
 const router = express.Router();
 
@@ -30,5 +31,6 @@ router.route("/fetch/answer").post(answerFetchController);
 router.route("/end").post(endExamController);
 router.route("/fetch/activity").post(userActivityFetchController);
 router.route("/users").post(userFetchController);
+router.route("/modify").post(modifyExamController);
 
 module.exports = { router };

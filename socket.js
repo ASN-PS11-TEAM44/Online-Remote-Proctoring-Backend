@@ -11,6 +11,8 @@ const { generateToken } = require("./config/authConfig");
 const { addUserActivity } = require("./helper/addUserActivity");
 const { examSpecificFetch } = require("./helper/examSpecificFetch");
 const { base64ToUrl } = require("./utils/base64ToUrl");
+const { modifyAttemptConfig } = require("./helper/modifyAttemptConfig");
+const { userFetch } = require("./helper/userFetch");
 
 const client = clientIO.connect(process.env.AI_URL);
 const keyv = new Keyv();
@@ -60,71 +62,141 @@ const initSocket = (socket) => {
     });
   });
 
-  socket.on("exam validation", (examId, userEmail, imageSrc, callback) => {
-    client.emit("brightness detector", imageSrc, async (response) => {
-      if (!response) {
-        console.log("Low Brightness detected");
-        // socket
-        //   .in(userEmail)
-        //   .emit({ message: "Low brightness in user's environment" });
-
-        await addUserActivity(
-          examId,
-          userEmail,
-          "Low brightness in user's environment",
-          1
-        );
-        socket
-          .in(userEmail)
-          .emit({ message: "Low brightness in user's environment" });
-        callback(true, "Low brightness in user's environment");
-        const exam = await examSpecificFetch(examId);
-        socket.in(exam.userEmail).emit("user report", {
-          message: "Low brightness in user's environment",
-        });
+  socket.on(
+    "exam validation",
+    async (examId, userEmail, imageSrc, callback) => {
+      const exam = await examSpecificFetch(examId);
+      if (exam.allowBrightnessDim) {
+        callback(false, "");
         return;
-      } else {
-        // client.emit("face detector", imageSrc, async (response, mssg) => {
-        //   if (!response) {
-        //     const exam = await examSpecificFetch(examId);
-        //     const url = base64ToUrl(imageSrc);
-        //     await addUserActivity(examId, userEmail, mssg, 2, url);
-        //     const newMessage = `${userEmail} : ${mssg}`;
-        //     socket
-        //       .in(exam.userEmail)
-        //       .emit("user report", { message: newMessage });
-        //     socket
-        //       .in(userEmail)
-        //       .emit("user activity error message", { mssg: mssg });
-        //   } else {
-        client.emit("pose detector", imageSrc, async (response, mssg) => {
-          if (!response) {
-            const exam = await examSpecificFetch(examId);
-            const url = base64ToUrl(imageSrc);
-            await addUserActivity(examId, userEmail, mssg, 2, url);
-            const newMessage = `${userEmail} : ${mssg}`;
-            socket
-              .in(exam.userEmail)
-              .emit("user report", { message: newMessage });
-            callback(true, mssg);
-          } else {
-            callback(false, "");
-          }
-          //   });
-          // }
-        });
       }
-    });
-    // client.emit("object detector", imageSrc, (response) => {
-    //   // console.log(response);
-    // });
-  });
-  socket.on("user activity", async (examId, userEmail, message, status) => {
-    const exam = await examSpecificFetch(examId);
-    await addUserActivity(examId, userEmail, message, status);
-    const newMessage = `${userEmail} : ${message}`;
-    socket.in(exam.userEmail).emit("user report", { message: newMessage });
-  });
+      client.emit("brightness detector", imageSrc, async (response) => {
+        if (!response) {
+          // socket
+          //   .in(userEmail)
+          //   .emit({ message: "Low brightness in user's environment" });
+
+          await addUserActivity(
+            examId,
+            userEmail,
+            "Low brightness in user's environment",
+            1
+          );
+          socket
+            .in(userEmail)
+            .emit({ message: "Low brightness in user's environment" });
+          const isValid = await modifyAttemptConfig(
+            examId,
+            userEmail,
+            0,
+            0,
+            0,
+            1
+          );
+          callback(true, "Low brightness in user's environment", isValid);
+
+          socket.in(exam.userEmail).emit("user report", {
+            message: "Low brightness in user's environment",
+          });
+
+          return;
+        } else {
+          // client.emit("face detector", imageSrc, async (response, mssg) => {
+          //   if (!response) {
+          //     const exam = await examSpecificFetch(examId);
+          //     const url = base64ToUrl(imageSrc);
+          //     await addUserActivity(examId, userEmail, mssg, 2, url);
+          //     const newMessage = `${userEmail} : ${mssg}`;
+          //     socket
+          //       .in(exam.userEmail)
+          //       .emit("user report", { message: newMessage });
+          //     socket
+          //       .in(userEmail)
+          //       .emit("user activity error message", { mssg: mssg });
+          //   } else {
+          if (exam.allowHeadMovement) {
+            callback(false, "");
+            return;
+          }
+          client.emit("pose detector", imageSrc, async (response, mssg) => {
+            if (!response) {
+              const exam = await examSpecificFetch(examId);
+              const url = base64ToUrl(imageSrc);
+              await addUserActivity(examId, userEmail, mssg, 2, url);
+              const newMessage = `${userEmail} : ${mssg}`;
+              socket
+                .in(exam.userEmail)
+                .emit("user report", { message: newMessage });
+              const isValid = await modifyAttemptConfig(
+                examId,
+                userEmail,
+                0,
+                0,
+                1,
+                0
+              );
+              callback(true, mssg, isValid);
+            } else {
+              // Run face recognition
+              console.log('Going to run facial recognition')
+              const user = await userFetch(userEmail);
+              const image = await axios.get(user.url, {
+                responseType: "arraybuffer",
+              });
+              const dbImage = Buffer.from(image.data).toString("base64");
+              client.emit(
+                "face verification",
+                imageSrc,
+                dbImage,
+                async (re) => {
+                  if (!re) {
+                    console.log('Going to end test due to facial recognition')
+                    const exam = await examSpecificFetch(examId);
+                    const url = base64ToUrl(imageSrc);
+                    await addUserActivity(examId, userEmail, 'Another person might be taking the test', 2, url);
+                    const newMessage = `${userEmail} : Another person might be taking the test`;
+                    socket
+                      .in(exam.userEmail)
+                      .emit("user report", { message: newMessage });
+                    callback(
+                      true,
+                      "Another person might be taking the test",
+                      true
+                    );
+                  } else {
+                    callback(false, "");
+                  }
+                }
+              );
+            }
+            //   });
+            // }
+          });
+        }
+      });
+      // client.emit("object detector", imageSrc, (response) => {
+      //   // console.log(response);
+      // });
+    }
+  );
+  socket.on(
+    "user activity",
+    async (examId, userEmail, message, status, type, callback) => {
+      const exam = await examSpecificFetch(examId);
+      await addUserActivity(examId, userEmail, message, status);
+      const newMessage = `${userEmail} : ${message}`;
+      socket.in(exam.userEmail).emit("user report", { message: newMessage });
+      const isValid = await modifyAttemptConfig(
+        examId,
+        userEmail,
+        type === "tab" ? 1 : 0,
+        type === "size" ? 1 : 0,
+        0,
+        0
+      );
+      callback(isValid);
+    }
+  );
   socket.on("end test", (studentEmail) => {
     socket.in(studentEmail).emit("end test request");
   });

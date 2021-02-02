@@ -20,5 +20,41 @@ module.exports = (sequelize) => {
       type: DataTypes.DATE,
       allowNull: false,
     },
+    allowTabSwitch: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    tabSwitchCount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    allowBrowserSizeChange: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    browserSwitchCount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    allowBrightnessDim: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    brighnessDimCount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    allowHeadMovement: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    headMovementCount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    allowVoice: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
   });
 };
